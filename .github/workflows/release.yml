@@ -1,0 +1,52 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write  
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Set up MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-make
+          mingw-w64-x86_64-binutils
+          base-devel
+    
+    - name: Build
+      shell: msys2 {0}
+      run: |
+        export PATH="/c/msys64/mingw64/bin:$PATH"
+        mkdir -p bin
+        # Create resource file from manifest and icon
+        echo '1 24 "src/app.manifest"' > src/app.rc
+        echo '400 ICON "assets/app.ico"' >> src/app.rc
+        windres src/app.rc -O coff -o src/app.res
+        # Compile with manifest, icon, and optimizations
+        gcc src/keepalive.c src/tray.c src/timer.c src/power.c src/app.res -o bin/KeepAlive.exe -mwindows -lcomctl32 -luser32 -lshell32 -Os -s
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: bin/KeepAlive.exe
+        name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
