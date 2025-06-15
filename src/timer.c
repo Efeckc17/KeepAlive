@@ -43,8 +43,17 @@ const char* get_remaining_time_str(TimerContext* ctx) {
     }
 
     DWORD remaining = (ctx->endTime - GetTickCount()) / 1000;
-    int minutes = remaining / 60;
+    int hours = remaining / 3600;
+    int minutes = (remaining % 3600) / 60;
     int seconds = remaining % 60;
-    sprintf_s(timeStr, sizeof(timeStr), "KeepAlive - %02d:%02d remaining", minutes, seconds);
+    if (hours > 0) {
+        if (minutes > 0) {
+            sprintf_s(timeStr, sizeof(timeStr), "KeepAlive - %d hours %d minutes remaining", hours, minutes);
+        } else {
+            sprintf_s(timeStr, sizeof(timeStr), "KeepAlive - %d hours remaining", hours);
+        }
+    } else {
+        sprintf_s(timeStr, sizeof(timeStr), "KeepAlive - %02d:%02d remaining", minutes, seconds);
+    }
     return timeStr;
 } 
