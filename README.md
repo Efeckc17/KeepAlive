@@ -2,6 +2,10 @@
 
 A Windows application that prevents the system from sleeping. It runs in the system tray and allows you to set a timer for how long you want to prevent sleep mode.
 
+## Screenshot
+
+![Menu Screenshot](assets/for-readme/menu.png)
+
 ## Features
 
 - System tray icon with context menu
